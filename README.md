@@ -8,7 +8,7 @@ Marketplace pessoal de plugins [Claude Code](https://claude.ai/code) mantidos po
 
 | Plugin | Versão | Descrição |
 |---|---|---|
-| [`qwen-review`](./qwen-review) | 0.1.1 | Stop-time review gate via API Qwen 3.7 Max — bloqueia stop quando o Qwen identifica problema no turn anterior. |
+| [`qwen-review`](./qwen-review) | 0.1.5 | Stop-time review gate via API Qwen 3.7 Max — bloqueia stop quando o Qwen identifica problema no turn anterior. Wizard via `/qwen-review:wizard` (AskUserQuestion). |
 
 ---
 
@@ -300,7 +300,7 @@ Vira (mantém o resto, mescla apenas as 4 chaves do qwen no env):
 - **Content-level regex:** AWS keys, OpenAI/Qwen keys (`sk-…`), GitHub tokens (`ghp_…`/`gho_…`/etc), JWTs, PEM private key blocks, Slack tokens → substituídos por `[REDACTED:<tipo>]`
 - Aplicado também no `git diff` (não só nos arquivos), e nos diffs sintéticos de untracked
 - **Wizard writes**: `~/.claude/settings.json` sempre em mode `0o600` strict (owner-only); fchmod via fd defeats umask, sem TOCTOU
-- Test count: **71/71** — incluindo regressões pra todos os leaks que o Codex stop-gate pegou durante o desenvolvimento (symlink/hardlink leaks, umask weakening, partial writes, etc.)
+- Test count: **83/83** — incluindo regressões pra todos os leaks que o Codex stop-gate pegou durante o desenvolvimento (symlink/hardlink leaks, umask weakening, partial writes, masked-key safety, atomic setup validation, `--skip-key` first-time flow, etc.)
 
 Detalhes completos em [`qwen-review/README.md`](./qwen-review/README.md) e [`qwen-review/docs/superpowers/specs/`](./qwen-review/docs/superpowers/specs/).
 
