@@ -8,7 +8,7 @@ Marketplace pessoal de plugins [Claude Code](https://claude.ai/code) mantidos po
 
 | Plugin | Versão | Descrição |
 |---|---|---|
-| [`qwen-review`](./qwen-review) | 0.1.0 | Stop-time review gate via API Qwen 3.7 Max — bloqueia stop quando o Qwen identifica problema no turn anterior. |
+| [`qwen-review`](./qwen-review) | 0.1.1 | Stop-time review gate via API Qwen 3.7 Max — bloqueia stop quando o Qwen identifica problema no turn anterior. |
 
 ---
 
@@ -183,6 +183,8 @@ Depois, dentro do Claude Code:
 ! node ~/.claude/plugins/cache/pir0c0pter0/qwen-review/<versão>/scripts/qwen-review.mjs wizard
 ```
 
+Descubra `<versão>` com `ls ~/.claude/plugins/cache/pir0c0pter0/qwen-review/`.
+
 > O **prefixo `!`** é essencial. Sem ele, o Claude Code executa via Bash tool (sem TTY) e os prompts do `readline` ficam vazios. Com `!`, o comando roda no terminal real do usuário e os prompts funcionam.
 
 ### O que ele pergunta
@@ -261,12 +263,21 @@ Vira (mantém o resto, mescla apenas as 4 chaves do qwen no env):
 
 **Comandos:**
 
-| Comando | Descrição |
-|---|---|
-| `/qwen-review:wizard` | Doc + instrução pra rodar o wizard interativo via `!` |
-| `/qwen-review:setup [--enable\|--disable]` | Liga/desliga o gate no workspace atual + ping na API |
-| `/qwen-review:status` | Mostra config + último review (JSON) |
-| `/qwen-review:check [--diff-only]` | Roda review manual on-demand contra `git diff HEAD` |
+| Comando | Argumentos | Descrição |
+|---|---|---|
+| `/qwen-review:wizard` | — | Imprime o comando pronto pra rodar o wizard via `!` (3 opções: slash, alias permanente, path completo) |
+| `/qwen-review:setup` | `[--enable\|--disable] [--fast\|--thinking\|--mode=X]` | Liga/desliga o gate + define modo per-workspace (combinável) + ping na API |
+| `/qwen-review:status` | — | Mostra config efetiva (env + workspace overrides) com `modeSource` + último review (JSON) |
+| `/qwen-review:check` | `[--diff-only]` | Roda review manual on-demand contra `git diff HEAD` |
+
+**Combos comuns:**
+
+```
+/qwen-review:setup --enable --thinking   # liga gate em modo thinking SÓ neste workspace
+/qwen-review:setup --enable --fast       # liga em fast (explicit)
+/qwen-review:setup --thinking            # só muda modo (gate já estava on/off)
+/qwen-review:setup --disable             # desliga gate (mantém preferência de modo)
+```
 
 **Env vars** (todas opcionais exceto `QWEN_API_KEY`):
 
@@ -288,7 +299,8 @@ Vira (mantém o resto, mescla apenas as 4 chaves do qwen no env):
 - **File-level skip:** `.env*`, `*.key`/`*.pem`/`*.crt`/`*.p12`, paths com `secret`/`credential`/`token`, binários, symlinks, hardlinks (qualquer file com `nlink > 1`) — todos viram placeholder `[file excluded: <razão>]` no prompt
 - **Content-level regex:** AWS keys, OpenAI/Qwen keys (`sk-…`), GitHub tokens (`ghp_…`/`gho_…`/etc), JWTs, PEM private key blocks, Slack tokens → substituídos por `[REDACTED:<tipo>]`
 - Aplicado também no `git diff` (não só nos arquivos), e nos diffs sintéticos de untracked
-- Test count: **68/68** — incluindo regressões pra todos os leaks que o Codex stop-gate pegou durante o desenvolvimento
+- **Wizard writes**: `~/.claude/settings.json` sempre em mode `0o600` strict (owner-only); fchmod via fd defeats umask, sem TOCTOU
+- Test count: **71/71** — incluindo regressões pra todos os leaks que o Codex stop-gate pegou durante o desenvolvimento (symlink/hardlink leaks, umask weakening, partial writes, etc.)
 
 Detalhes completos em [`qwen-review/README.md`](./qwen-review/README.md) e [`qwen-review/docs/superpowers/specs/`](./qwen-review/docs/superpowers/specs/).
 
