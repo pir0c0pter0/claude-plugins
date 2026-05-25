@@ -14,25 +14,26 @@ Marketplace pessoal de plugins [Claude Code](https://claude.ai/code) mantidos po
 
 ## 🚀 Instalação (passo a passo)
 
-### Opção A — via slash command (recomendado, mais fácil)
+### Opção A — slash commands (recomendado, fluxo mais simples)
 
 Dentro de uma sessão Claude Code:
 
 ```
 /plugin marketplace add pir0c0pter0/claude-plugins
-```
-
-Pronto — Claude Code registra a marketplace, baixa o repo, lista os plugins disponíveis. Daí:
-
-```
 /plugin install qwen-review@pir0c0pter0
 ```
 
-(Alguns versões usam `/plugin` interativo com aba Marketplaces — abre menu pra escolher.)
+Pronto. `/plugin install` **já ativa** — hooks rodam e slash commands ficam disponíveis imediatamente, sem `/plugin enable` separado (esse só existe pra reativar depois de um `/plugin disable`).
 
-### Opção B — editando `settings.json` manualmente
+Confirme:
 
-Útil pra setups compartilhados em team (commita junto). Edite `~/.claude/settings.json`:
+```
+/plugin list                # deve aparecer qwen-review@pir0c0pter0
+```
+
+### Opção B — `~/.claude/settings.json` user-level manual
+
+Útil quando você prefere config declarativa do seu user account todo (ou quer commitar essa config noutro lugar). Edite `~/.claude/settings.json`:
 
 ```json
 {
@@ -50,17 +51,34 @@ Pronto — Claude Code registra a marketplace, baixa o repo, lista os plugins di
 }
 ```
 
-> ⚠️ Por essa rota, a primeira vez exige **restart do Claude Code** (não basta `/reload-plugins` — registro de marketplaces só recarrega no startup). Atualizações posteriores dos plugins funcionam com `/reload-plugins`.
+> ⚠️ Marketplace nova só carrega no **startup** — feche e abra o Claude Code da primeira vez. Atualizações subsequentes dos plugins puxam via `/reload-plugins` normal.
 
-### Confirmar instalação (qualquer opção)
+### Opção C — `.claude/settings.json` project-level (team-scope)
+
+Quando um time inteiro precisa do mesmo plugin no projeto, commita `.claude/settings.json` na raiz do repo:
 
 ```
-/plugin list
+<seu-projeto>/.claude/settings.json
 ```
 
-Deve aparecer `qwen-review@pir0c0pter0` ✅.
+Conteúdo idêntico ao da Opção B (`extraKnownMarketplaces` + `enabledPlugins`). Cada dev clona o projeto, abre Claude Code e o plugin já vem ligado.
 
-Se der erro, rode `/doctor`.
+**Precedence de settings** (alto → baixo):
+
+1. Managed (admin/MDM) — não override-ável
+2. `.claude/settings.local.json` (gitignored, override pessoal)
+3. `.claude/settings.json` (committed, team config)
+4. `~/.claude/settings.json` (user-level)
+
+> ⚠️ **Não bote `env` block em project-level committed.** `QWEN_API_KEY` é segredo — fica em `~/.claude/settings.json` (per-user), nunca no repo. O wizard escreve sempre no user-level por isso.
+
+### Confirmar tudo
+
+```
+/plugin list           # qwen-review@pir0c0pter0 listado
+/qwen-review:status    # envOk: true + valores corretos
+/doctor                # diagnóstico se algo deu errado
+```
 
 ### 2. Configurar o plugin (use o wizard)
 
