@@ -12,37 +12,32 @@ Marketplace pessoal de plugins [Claude Code](https://claude.ai/code) mantidos po
 
 ---
 
-## 🚀 Instalação (passo a passo)
+## 🚀 Instalação (4 fases)
 
-### Opção A — slash commands (recomendado, fluxo mais simples)
+Cada fase tem uma verificação simples antes de avançar pra próxima — evita o problema de "tudo parece quebrado porque eu pulei um passo".
 
-Dentro de uma sessão Claude Code:
+---
+
+### Fase 1 — Registrar marketplace + instalar o plugin
+
+Três rotas equivalentes. Escolha **uma**:
+
+**Rota A — slash commands** (mais simples):
 
 ```
 /plugin marketplace add pir0c0pter0/claude-plugins
 /plugin install qwen-review@pir0c0pter0
 ```
 
-Pronto. `/plugin install` **já ativa** — hooks rodam e slash commands ficam disponíveis imediatamente, sem `/plugin enable` separado (esse só existe pra reativar depois de um `/plugin disable`).
+`/plugin install` **já ativa** — hooks rodam e slash commands ficam disponíveis imediatamente. Não precisa de `/plugin enable` separado (esse só serve pra reativar após `/plugin disable`).
 
-Confirme:
-
-```
-/plugin list                # deve aparecer qwen-review@pir0c0pter0
-```
-
-### Opção B — `~/.claude/settings.json` user-level manual
-
-Útil quando você prefere config declarativa do seu user account todo (ou quer commitar essa config noutro lugar). Edite `~/.claude/settings.json`:
+**Rota B — `~/.claude/settings.json` user-level manual:**
 
 ```json
 {
   "extraKnownMarketplaces": {
     "pir0c0pter0": {
-      "source": {
-        "source": "github",
-        "repo": "pir0c0pter0/claude-plugins"
-      }
+      "source": { "source": "github", "repo": "pir0c0pter0/claude-plugins" }
     }
   },
   "enabledPlugins": {
@@ -51,65 +46,93 @@ Confirme:
 }
 ```
 
-> ⚠️ Marketplace nova só carrega no **startup** — feche e abra o Claude Code da primeira vez. Atualizações subsequentes dos plugins puxam via `/reload-plugins` normal.
+> ⚠️ Marketplace nova só carrega no **startup** — feche e abra o Claude Code da primeira vez. Atualizações subsequentes dos plugins puxam via `/reload-plugins`.
 
-### Opção C — `.claude/settings.json` project-level (team-scope)
+**Rota C — `<project>/.claude/settings.json` committed (team-scope):**
 
-Quando um time inteiro precisa do mesmo plugin no projeto, commita `.claude/settings.json` na raiz do repo:
+Mesmo JSON da Rota B, mas no `.claude/` do projeto (não home). Commitado no repo, todo dev pega a config ao clonar.
 
-```
-<seu-projeto>/.claude/settings.json
-```
-
-Conteúdo idêntico ao da Opção B (`extraKnownMarketplaces` + `enabledPlugins`). Cada dev clona o projeto, abre Claude Code e o plugin já vem ligado.
-
-**Precedence de settings** (alto → baixo):
+Precedência de settings (alto → baixo, override completo sem merge):
 
 1. Managed (admin/MDM) — não override-ável
 2. `.claude/settings.local.json` (gitignored, override pessoal)
 3. `.claude/settings.json` (committed, team config)
 4. `~/.claude/settings.json` (user-level)
 
-> ⚠️ **Não bote `env` block em project-level committed.** `QWEN_API_KEY` é segredo — fica em `~/.claude/settings.json` (per-user), nunca no repo. O wizard escreve sempre no user-level por isso.
+> ⚠️ **Nunca** ponha `env.QWEN_API_KEY` em settings project-level — segredo no repo. A chave fica sempre em `~/.claude/settings.json` per-user (o wizard escreve lá por isso).
 
-### Confirmar tudo
+**Verificação da Fase 1:**
 
 ```
-/plugin list           # qwen-review@pir0c0pter0 listado
-/qwen-review:status    # envOk: true + valores corretos
-/doctor                # diagnóstico se algo deu errado
+/plugin list
 ```
 
-### 2. Configurar o plugin (use o wizard)
+Deve listar `qwen-review@pir0c0pter0`. Nesse ponto o plugin tá instalado e ativo, mas ainda **sem chave** — então `/qwen-review:status` vai mostrar `envOk: false`. Isso é esperado, próxima fase resolve.
+
+Se `/plugin list` não mostra o plugin, rode `/doctor` e revise o passo de install.
+
+---
+
+### Fase 2 — Configurar a API com o wizard
+
+Dentro do Claude Code (o `!` é essencial — abre terminal real pro readline funcionar):
 
 ```
 ! node ~/.claude/plugins/cache/pir0c0pter0/claude-plugins/<versão>/qwen-review/scripts/qwen-review.mjs wizard
 ```
 
-O `!` é importante — abre terminal real (necessário pro readline funcionar). Veja [seção do wizard abaixo](#-wizard-de-configuração).
+Descubra `<versão>` com `ls ~/.claude/plugins/cache/pir0c0pter0/claude-plugins/`.
 
-Como descobrir o `<versão>`:
-```bash
-ls ~/.claude/plugins/cache/pir0c0pter0/claude-plugins/
-```
+O wizard pergunta API key, base URL, modelo e modo (`fast` ou `thinking`), mostra summary e escreve atomicamente em `~/.claude/settings.json` com mode `0o600`. Detalhes na [seção do wizard abaixo](#-wizard-de-configuração).
 
-### 3. Habilitar o gate no workspace
-
-Dentro do projeto onde você quer review automático:
-
-```
-/qwen-review:setup --enable
-```
-
-O gate é por workspace — habilita só no projeto atual (state isolado por SHA-256 do realpath do diretório).
-
-### 4. Confirmar tudo funcionando
+**Verificação da Fase 2:**
 
 ```
 /qwen-review:status
 ```
 
-Deve mostrar `envOk: true`, `reviewGateEnabled: true`, e os valores que o wizard escreveu.
+Agora deve mostrar `envOk: true` + `apiKey: "sk-•••XXX"` (mascarada) + os outros valores. Se ainda mostra `envOk: false`, reinicie o Claude Code (env só recarrega no startup).
+
+`reviewGateEnabled` continua `false` — fase 3.
+
+---
+
+### Fase 3 — Habilitar o gate no workspace
+
+Entre no diretório do projeto onde quer review automático e rode:
+
+```
+/qwen-review:setup --enable
+```
+
+O gate é por workspace — state isolado por SHA-256 do realpath. Pode habilitar em qualquer número de projetos sem interferência.
+
+**Verificação da Fase 3:**
+
+```
+/qwen-review:status
+```
+
+Agora deve mostrar `reviewGateEnabled: true` além do que já tinha.
+
+---
+
+### Fase 4 — Smoke test end-to-end
+
+Faça uma edit qualquer (até trivial, tipo um comentário) num arquivo do projeto e termine o turn no Claude Code. O hook `Stop` dispara, manda pro Qwen, e:
+
+- Se Qwen responder `ALLOW:` → stop normal (silencioso)
+- Se Qwen responder `BLOCK:` → Claude vê `{decision:"block"}` no transcript e continua o turn
+
+Confirme com:
+
+```
+/qwen-review:status
+```
+
+`lastReview` agora deve estar populado: `{ts, decision, reason, model, latencyMs, promptTokens, completionTokens}`. Se `lastReview` continua `null` após terminar um turn, o hook não rodou — checa `/doctor`.
+
+Se algo deu errado em qualquer fase, rode `/doctor` pra diagnóstico.
 
 ---
 
