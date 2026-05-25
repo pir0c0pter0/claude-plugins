@@ -75,15 +75,13 @@ Se `/plugins list` não mostra o plugin, rode `/doctor` e revise o passo de inst
 
 ### Fase 2 — Configurar a API com o wizard
 
-Dentro do Claude Code (o `!` é essencial — abre terminal real pro readline funcionar):
+**Forma mais fácil** — slash command que imprime o comando pronto pra copiar:
 
 ```
-! node ~/.claude/plugins/cache/pir0c0pter0/claude-plugins/<versão>/qwen-review/scripts/qwen-review.mjs wizard
+/qwen-review:wizard
 ```
 
-Descubra `<versão>` com `ls ~/.claude/plugins/cache/pir0c0pter0/claude-plugins/`.
-
-O wizard pergunta API key, base URL, modelo e modo (`fast` ou `thinking`), mostra summary e escreve atomicamente em `~/.claude/settings.json` com mode `0o600`. Detalhes na [seção do wizard abaixo](#-wizard-de-configuração).
+Cole a linha que ele te dá (já com `!` no início e o path resolvido) e o wizard abre. Detalhes em [seção do wizard abaixo](#-wizard-de-configuração) (incluindo alias permanente).
 
 **Verificação da Fase 2:**
 
@@ -154,7 +152,32 @@ Se algo deu errado em qualquer fase, `/doctor` é o diagnóstico padrão.
 
 O wizard é a forma recomendada de configurar `QWEN_API_KEY`, base URL, modelo e modo. Roda interativamente, mostra summary, pede confirmação, e escreve atomicamente em `~/.claude/settings.json` preservando todos os outros campos.
 
-### Como rodar
+### Como rodar — 3 opções
+
+**A — slash command (recomendado, sem decorar path):**
+
+```
+/qwen-review:wizard
+```
+
+Imprime a linha exata pra você copiar com `!` no início. Cola e o wizard abre.
+
+**B — alias permanente no shell** (uma vez só, depois é só `! qwen-wizard`):
+
+```bash
+echo 'alias qwen-wizard="node $(ls -d ~/.claude/plugins/cache/pir0c0pter0/claude-plugins/*/qwen-review)/scripts/qwen-review.mjs wizard"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+(`~/.zshrc` se for zsh.)
+
+Depois, dentro do Claude Code:
+
+```
+! qwen-wizard
+```
+
+**C — invocação direta** (sem setup, path completo):
 
 ```
 ! node ~/.claude/plugins/cache/pir0c0pter0/claude-plugins/<versão>/qwen-review/scripts/qwen-review.mjs wizard
