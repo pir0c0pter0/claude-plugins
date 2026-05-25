@@ -14,9 +14,25 @@ Marketplace pessoal de plugins [Claude Code](https://claude.ai/code) mantidos po
 
 ## 🚀 Instalação (passo a passo)
 
-### 1. Registrar a marketplace no Claude Code
+### Opção A — via slash command (recomendado, mais fácil)
 
-Edite `~/.claude/settings.json` (cria se não existir) e adicione/mescle os campos `extraKnownMarketplaces` e `enabledPlugins`:
+Dentro de uma sessão Claude Code:
+
+```
+/plugin marketplace add pir0c0pter0/claude-plugins
+```
+
+Pronto — Claude Code registra a marketplace, baixa o repo, lista os plugins disponíveis. Daí:
+
+```
+/plugin install qwen-review@pir0c0pter0
+```
+
+(Alguns versões usam `/plugin` interativo com aba Marketplaces — abre menu pra escolher.)
+
+### Opção B — editando `settings.json` manualmente
+
+Útil pra setups compartilhados em team (commita junto). Edite `~/.claude/settings.json`:
 
 ```json
 {
@@ -34,15 +50,9 @@ Edite `~/.claude/settings.json` (cria se não existir) e adicione/mescle os camp
 }
 ```
 
-Se já tem outros campos no `settings.json`, só **adicione** essas duas chaves — preserve o resto.
+> ⚠️ Por essa rota, a primeira vez exige **restart do Claude Code** (não basta `/reload-plugins` — registro de marketplaces só recarrega no startup). Atualizações posteriores dos plugins funcionam com `/reload-plugins`.
 
-### 2. Reiniciar o Claude Code
-
-> ⚠️ A primeira vez que você adiciona uma marketplace nova, **`/reload-plugins` NÃO é suficiente** — o registro de marketplaces só é carregado no startup. **Feche e abra o Claude Code.**
-
-(Depois disso, atualizações dos plugins puxam via `/reload-plugins` normalmente.)
-
-### 3. Confirmar instalação
+### Confirmar instalação (qualquer opção)
 
 ```
 /plugin list
@@ -50,9 +60,9 @@ Se já tem outros campos no `settings.json`, só **adicione** essas duas chaves 
 
 Deve aparecer `qwen-review@pir0c0pter0` ✅.
 
-Se não aparecer, rode `/doctor` pra ver o erro.
+Se der erro, rode `/doctor`.
 
-### 4. Configurar o plugin (use o wizard)
+### 2. Configurar o plugin (use o wizard)
 
 ```
 ! node ~/.claude/plugins/cache/pir0c0pter0/claude-plugins/<versão>/qwen-review/scripts/qwen-review.mjs wizard
@@ -65,7 +75,7 @@ Como descobrir o `<versão>`:
 ls ~/.claude/plugins/cache/pir0c0pter0/claude-plugins/
 ```
 
-### 5. Habilitar o gate no workspace
+### 3. Habilitar o gate no workspace
 
 Dentro do projeto onde você quer review automático:
 
@@ -75,7 +85,7 @@ Dentro do projeto onde você quer review automático:
 
 O gate é por workspace — habilita só no projeto atual (state isolado por SHA-256 do realpath do diretório).
 
-### 6. Confirmar tudo funcionando
+### 4. Confirmar tudo funcionando
 
 ```
 /qwen-review:status
