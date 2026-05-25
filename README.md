@@ -165,7 +165,7 @@ Imprime a linha exata pra você copiar com `!` no início. Cola e o wizard abre.
 **B — alias permanente no shell** (uma vez só, depois é só `! qwen-wizard`):
 
 ```bash
-echo 'alias qwen-wizard="node $(ls -d ~/.claude/plugins/cache/pir0c0pter0/claude-plugins/*/qwen-review)/scripts/qwen-review.mjs wizard"' >> ~/.bashrc
+echo 'alias qwen-wizard="node $(ls -d ~/.claude/plugins/cache/pir0c0pter0/qwen-review/*)/scripts/qwen-review.mjs wizard"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
@@ -180,7 +180,7 @@ Depois, dentro do Claude Code:
 **C — invocação direta** (sem setup, path completo):
 
 ```
-! node ~/.claude/plugins/cache/pir0c0pter0/claude-plugins/<versão>/qwen-review/scripts/qwen-review.mjs wizard
+! node ~/.claude/plugins/cache/pir0c0pter0/qwen-review/<versão>/scripts/qwen-review.mjs wizard
 ```
 
 > O **prefixo `!`** é essencial. Sem ele, o Claude Code executa via Bash tool (sem TTY) e os prompts do `readline` ficam vazios. Com `!`, o comando roda no terminal real do usuário e os prompts funcionam.
