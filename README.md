@@ -317,7 +317,7 @@ Detalhes completos em [`qwen-review/README.md`](./qwen-review/README.md) e [`qwe
      "source": "./<nome>",
      "description": "...",
      "version": "0.1.0",
-     "author": { "name": "Mario Junior" },
+     "author": { "name": "Pir0c0pter0", "email": "pir0c0pter0000@gmail.com" },
      "keywords": ["..."],
      "category": "workflow"
    }

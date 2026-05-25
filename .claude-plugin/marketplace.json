@@ -2,7 +2,8 @@
   "name": "pir0c0pter0",
   "id": "pir0c0pter0",
   "owner": {
-    "name": "Mario Junior",
+    "name": "Pir0c0pter0",
+    "email": "pir0c0pter0000@gmail.com",
     "url": "https://github.com/pir0c0pter0"
   },
   "metadata": {
@@ -14,9 +15,11 @@
       "name": "qwen-review",
       "source": "./qwen-review",
       "description": "Stop-time review gate via API Qwen 3.7 Max (OpenAI-compatible). Bloqueia stop quando Qwen identifica problema no último turn.",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "author": {
-        "name": "Mario Junior"
+        "name": "Pir0c0pter0",
+        "email": "pir0c0pter0000@gmail.com",
+        "url": "https://github.com/pir0c0pter0"
       },
       "keywords": ["review", "qwen", "stop-hook", "code-review", "guardrail"],
       "category": "workflow",
