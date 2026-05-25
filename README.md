@@ -119,10 +119,12 @@ Agora deve mostrar `reviewGateEnabled: true` além do que já tinha.
 
 ### Fase 4 — Smoke test end-to-end
 
-Faça uma edit qualquer (até trivial, tipo um comentário) num arquivo do projeto e termine o turn no Claude Code. O hook `Stop` dispara, manda pro Qwen, e:
+> ⚠️ **Antes** de fazer qualquer coisa nessa fase, rode `/qwen-review:status` e **anote o `lastReview.ts` atual** (pode estar `null` se nunca rodou, ou pode ter um timestamp antigo de outro workspace/dia). Só assim você consegue provar que o smoke test foi de fato a chamada que populou o estado.
 
-- Se Qwen responder `ALLOW:` → stop normal (silencioso)
-- Se Qwen responder `BLOCK:` → Claude vê `{decision:"block"}` no transcript e continua o turn
+Agora faça uma edit qualquer (até trivial, tipo um comentário) num arquivo do projeto e termine o turn no Claude Code. O hook `Stop` dispara, manda pro Qwen, e:
+
+- Qwen responde `ALLOW:` → stop normal (silencioso)
+- Qwen responde `BLOCK:` → Claude vê `{decision:"block"}` no transcript e continua o turn
 
 Confirme com:
 
@@ -130,9 +132,21 @@ Confirme com:
 /qwen-review:status
 ```
 
-`lastReview` agora deve estar populado: `{ts, decision, reason, model, latencyMs, promptTokens, completionTokens}`. Se `lastReview` continua `null` após terminar um turn, o hook não rodou — checa `/doctor`.
+Checagens (todas têm que valer):
 
-Se algo deu errado em qualquer fase, rode `/doctor` pra diagnóstico.
+1. `lastReview` é não-`null`
+2. `lastReview.ts` **mudou** vs. o valor que você anotou antes (ou virou um timestamp se era `null`)
+3. `lastReview.ts` é dos últimos minutos (não algo do dia anterior)
+4. `lastReview.model` bate com o `QWEN_MODEL` que você configurou
+5. `lastReview.latencyMs` e `promptTokens`/`completionTokens` fazem sentido (não-zero)
+
+Se `lastReview.ts` continua igual ao valor anterior, o hook **não rodou nesse turn** — possíveis causas:
+- Gate não está habilitado nesse workspace (`/qwen-review:setup --enable`)
+- A edit foi exatamente vazia (atalho de `last_assistant + diff vazios` faz exit silent)
+- Outro hook `Stop` falhou antes do qwen-review (`/doctor` mostra)
+- Plugin não carregou direito (`/plugin list`)
+
+Se algo deu errado em qualquer fase, `/doctor` é o diagnóstico padrão.
 
 ---
 
