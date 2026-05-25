@@ -25,11 +25,11 @@ Três rotas equivalentes. Escolha **uma**:
 **Rota A — slash commands** (mais simples):
 
 ```
-/plugin marketplace add pir0c0pter0/claude-plugins
-/plugin install qwen-review@pir0c0pter0
+/plugins marketplace add pir0c0pter0/claude-plugins
+/plugins install qwen-review@pir0c0pter0
 ```
 
-`/plugin install` **já ativa** — hooks rodam e slash commands ficam disponíveis imediatamente. Não precisa de `/plugin enable` separado (esse só serve pra reativar após `/plugin disable`).
+`/plugins install` **já ativa** — hooks rodam e slash commands ficam disponíveis imediatamente. Não precisa de `/plugins enable` separado (esse só serve pra reativar após `/plugins disable`).
 
 **Rota B — `~/.claude/settings.json` user-level manual:**
 
@@ -64,12 +64,12 @@ Precedência de settings (alto → baixo, override completo sem merge):
 **Verificação da Fase 1:**
 
 ```
-/plugin list
+/plugins list
 ```
 
 Deve listar `qwen-review@pir0c0pter0`. Nesse ponto o plugin tá instalado e ativo, mas ainda **sem chave** — então `/qwen-review:status` vai mostrar `envOk: false`. Isso é esperado, próxima fase resolve.
 
-Se `/plugin list` não mostra o plugin, rode `/doctor` e revise o passo de install.
+Se `/plugins list` não mostra o plugin, rode `/doctor` e revise o passo de install.
 
 ---
 
@@ -144,7 +144,7 @@ Se `lastReview.ts` continua igual ao valor anterior, o hook **não rodou nesse t
 - Gate não está habilitado nesse workspace (`/qwen-review:setup --enable`)
 - A edit foi exatamente vazia (atalho de `last_assistant + diff vazios` faz exit silent)
 - Outro hook `Stop` falhou antes do qwen-review (`/doctor` mostra)
-- Plugin não carregou direito (`/plugin list`)
+- Plugin não carregou direito (`/plugins list`)
 
 Se algo deu errado em qualquer fase, `/doctor` é o diagnóstico padrão.
 
@@ -297,7 +297,7 @@ Detalhes completos em [`qwen-review/README.md`](./qwen-review/README.md) e [`qwe
 | Sintoma | Diagnóstico | Fix |
 |---|---|---|
 | `Plugin qwen-review not found in marketplace local` | Tentativa de marketplace local sem manifest correto | Use marketplace github (esse repo) em vez de local |
-| `/plugin list` não mostra qwen-review depois de editar settings.json | Marketplaces nova só carrega no startup | Feche e abra Claude Code (não basta `/reload-plugins`) |
+| `/plugins list` não mostra qwen-review depois de editar settings.json | Marketplaces nova só carrega no startup | Feche e abra Claude Code (não basta `/reload-plugins`) |
 | `/qwen-review:status` mostra `envOk: false` | `QWEN_API_KEY` não setado | Rode o wizard ou edite `env.QWEN_API_KEY` em `~/.claude/settings.json` |
 | Gate não dispara | `stopReviewGate: false` no state do workspace | `/qwen-review:setup --enable` no projeto |
 | Reviews lentos demais (>30s) | Modo `thinking` ativo | Wizard → modo `fast`, ou `unset QWEN_REVIEW_MODE` |
